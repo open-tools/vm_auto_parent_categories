@@ -7,48 +7,124 @@
  **/
 
 defined( '_JEXEC' ) or die( 'Restricted access' );
+JFactory::getLanguage()->load('plg_system_vmProductAutoParentCategories.sys');
 
 jimport('joomla.event.plugin');
 class plgSystemVMProductAutoParentCategories extends JPlugin {
-	
+	var $_dbg = 'report_changes';
+	var $_apply = TRUE;
+	var $_report = TRUE;
+	var $_debug = FALSE;
+
+	function initSettings() {
+		$this->_dbg = $this->params->get('debug','report_changes');
+		
+		$this->_apply = TRUE;  // Whether to apply the changes at all
+		$this->_report = TRUE; // Whether to report changes
+		$this->_debug = FALSE; // Verbose debug output?
+		switch ($this->_dbg) {
+			case 'no_output': 
+				$this->_report = FALSE; 
+				break;
+			case 'report_changes': 
+				break;
+			case 'report_always': 
+				break;
+			case 'report_no_change': 
+				$this->_apply = FALSE; 
+				break;
+			case 'debug': 
+				$this->_debug = TRUE; 
+				break;
+			case 'debug_no_changes': 
+				$this->_apply = FALSE; 
+				$this->_debug = TRUE; 
+				break;
+		}
+// 		print("Settings: _dbg=$this->_dbg, _prodaction=$this->_prodaction, _childprodaction=$this->_childprodaction, _apply=$this->_apply, _report=$this->_report, _debug=$this->_debug");
+	}
 	function onAfterRoute(){
 		/** Alternatively you may use chaining */
 		if(!JFactory::getApplication()->isAdmin()) return;
 		$option = JRequest::getCmd('option');
 		if($option != 'com_virtuemart') return;
-		JFactory::getApplication()->enqueueMessage(JText::_('VMPRODAUTOPARENTCATEGORIES'), 'message');
+		$this->initSettings();
 		$this->updateCategories();
 	}
+	
 	function onLoginUser(){
 		/** Alternatively you may use chaining */
 		if(!JFactory::getApplication()->isAdmin()) return;
 		JFactory::getApplication()->enqueueMessage("onLoginUser", 'message');
+		$this->initSettings();
+	}
+
+
+	function debugMessage ($msg) {
+		if ($this->_debug) {
+			$app = JFactory::getApplication();
+			$app->enqueueMessage($msg, 'message');
+		}
+	}
+	function progressMessage ($msg) {
+		if ($this->_report) {
+			$app = JFactory::getApplication();
+			$app->enqueueMessage($msg, 'message');
+		}
+	}
+
+	function getCategoriesAllParents($categories, $catparents) {
+		$newcats=[];
+		foreach ($categories as $c) {
+			$newcats[$c]=1;
+			$c1=$c;
+			while ($catparents[$c1]) {
+				$c1=$catparents[$c1];
+				$newcats[$c1]=1;
+			}
+		}
+		return array_keys($newcats);
+	}
+	function getCategoriesOnlyLeaf($categories, $catparents) {
+		$newcats=array_flip($categories);
+		foreach ($categories as $c) {
+			$c1=$c;
+			while ($catparents[$c1]) {
+				$c1=$catparents[$c1];
+				if (isset($newcats[$c1])) {
+					unset ($newcats[$c1]);
+				}
+			}
+		}
+		return array_keys($newcats);
+	}
+	function getCategoriesOneParent($categories, $catparents) {
+		$newcats = array_flip($this->getCategoriesOnlyLeaf($categories, $catparents));
+		foreach (array_keys($newcats) as $c) {
+			if (isset($catparents[$c]) and $catparents[$c]) {
+				$newcats[$catparents[$c]]=1;
+			}
+		}
+		return array_keys($newcats);
+	}
+
+	function getProductTopParent($product, $products) {
+		$p = $product;
+		while ($p->product_parent_id) {
+			$p = $products[$p->product_parent_id];
+		}
+		return $p;
 	}
 	
 	function updateCategories() {
-		$app = JFactory::getApplication();
-		print_r($this->params);
-		$dbg = $this->params->get('debug','report_changes');
-		
-		$apply = TRUE;  // Whether to apply the changes at all
-		$report = TRUE; // Whether to report changes
-		$debug = FALSE; // Verbose debug output?
-		switch ($debug) {
-			case 'no_output': $report = FALSE; break;
-			case 'report_changes': break;
-			case 'report_always': break;
-			case 'report_no_change': $apply = FALSE; break;
-			case 'debug': $debug = TRUE; break;
-			case 'debug_no_changes': $apply = FALSE; $debug = FALSE; break;
-		}
+		if (!class_exists( 'VmConfig' )) 
+			require(JPATH_ADMINISTRATOR.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+		$config = VmConfig::loadConfig();
+		$prodaction = $this->params->get('normal_products', 'nothing');
+		$childprodaction = $this->params->get('child_products', 'nothing');
 
-		if (!class_exists('VmConfig')) 
-			require JPATH_ROOT.'/administrator/components/com_virtuemart/helpers/config.php';
-		if (!class_exists('VmImage')) 
-			require JPATH_ROOT.'/administrator/components/com_virtuemart/helpers/image.php'; // needs to be loaded or receive "ensure that the class definition "VmImage" of the object you are trying to operate on was loaded..."
-		if (!class_exists('VirtueMartModelCategory')) 
-			require JPATH_ROOT.'/administrator/components/com_virtuemart/models/category.php';
-		$catmodel = new VirtueMartModelCategory();
+		$app = JFactory::getApplication();
+		$catmodel = VmModel::getModel('category');
 		$cattree = $catmodel->getCategoryTree();
 		
 		// Store the names and parents for each category id
@@ -56,145 +132,70 @@ class plgSystemVMProductAutoParentCategories extends JPlugin {
 			$catnames[$cat->virtuemart_category_id] = $cat->category_name;
 			$catparents[$cat->virtuemart_category_id] = $cat->category_parent_id;
 		}
-		if ($debug) {
-			$app->enqueueMessage(JText::sprintf('VMPRODPARENTCATS_DEBUG_LOADCATS', $cattree), 'message');
-		}
+		$this->debugMessage(JText::sprintf('VMPRODPARENTCATS_DEBUG_LOADCATS', count($cattree)));
 
-		if (!class_exists('VirtueMartModelProduct')) 
-			require JPATH_ROOT.'/administrator/components/com_virtuemart/models/product.php';
-		$productmodel = new VirtueMartModelProduct();
+		$productmodel = VmModel::getModel('product');
 		$productmodel->_noLimit = true;
-		$products = $productmodel->getProductListing();
+		$products = [];
+		// Create an array of products, indexed by their VM id:
+		foreach ($productmodel->getProductListing() as $p) {
+			$products[$p->virtuemart_product_id] = $p;
+		}
+		$this->debugMessage(JText::sprintf('VMPRODPARENTCATS_DEBUG_LOADPRODUCTS', count($products)));
 		// First, look only at parent products
+		$modified = 0;
 		foreach ($products as $p) {
 			if ($p->product_parent_id) continue;
 			$cats = $p->categories;
-// 			foreach 
-			print($p->product_name.'\n');
-			print($p->product_sku.'\n');
-			print($p->product_parent_id.'\n'); // Is Child?
-			print($p->categories.'\n');
-			print($p->virtuemart_category_id.'\n\n');
-// 			[categories] => Array
-//                 (
-//                     [0] => 4
-//                 )
-// 
-//             [virtuemart_category_id] => 4
-// 
+			$newcats = $cats;
+			switch ($prodaction) {
+				case 'nothing': continue;
+				case 'add_parents': $newcats = $this->getCategoriesAllParents($cats, $catparents); break;
+				case 'add_two_leaves': $newcats = $this->getCategoriesOneParent($cats, $catparents); break;
+				case 'remove_except_leaf': $newcats = $this->getCategoriesOnlyLeaf($cats, $catparents); break;
+			}
+			$added=array_diff($newcats,$cats);
+			$removed=array_diff($cats,$newcat);
+			if (!empty($added) and !empty($removed)) {
+
+				$p->categories = $newcats;
+				$productmodel->store($p);
+VMPRODPARENTCATS_DEBUG_ARTICLE_MODIFIED="Artikel "_QQ_"%s"_QQ_" (SKU %s) modifiziert: %d Kategorien hinzugefügt, %d Kategorien entfernt."
+			} else {
+VMPRODPARENTCATS_DEBUG_ARTICLE_MODIFIED="Artikel "_QQ_"%s"_QQ_" (SKU %s) modifiziert: %d Kategorien hinzugefügt, %d Kategorien entfernt."
+
+print("Product: $p->product_name");
+print("Added categories: ");print_r($added);
+print("Removed categories: ");print_r($removed);
+			// TODO: Assign the new categories, print out debug statement, store the changes!
+print("Old categories: "); print_r($cats);
+print("New categories: "); print_r($newcats);
 		}
-// 		print_r($products);
 		
-		$pp = $productmodel->sortSearchListQuery(FALSE, FALSE, FALSE, FALSE);
-		print_r($pp);
-// sortSearchListQuery ($onlyPublished = TRUE, $virtuemart_category_id = FALSE, $group = FALSE, $nbrReturnProducts = FALSE)
-// 		$var = $this->params->get($name,'');
+		// Now look at the child products and modify them accordingly
+		foreach ($products as $p) {
+			if (!$p->product_parent_id) continue;
+			$topparent = $this->getProductTopParent($p, $products);
+			$cats = $p->categories;
+			$newcats = $cats;
+// print("Action: $prodaction");
+			switch ($childprodaction) {
+				case 'nothing': continue;
+				case 'add_parents': $newcats = $this->getCategoriesAllParents($cats, $catparents); break;
+				case 'add_two_leaves': $newcats = $this->getCategoriesOneParent($cats, $catparents); break;
+				case 'remove_except_leaf': $newcats = $this->getCategoriesOnlyLeaf($cats, $catparents); break;
+				case 'copy_parent': $newcats = $topparent->categories; break;
+				case 'remove_all': $newcats = []; break;
+			}
+print("Old categories: "); print_r($cats);
+print("New categories: "); print_r($newcats);
+			// TODO: Assign the new categories, print out debug statement, store the changes!
+		}
+
 		$app->enqueueMessage(JText::_('VMPRODAUTOPARENTCATEGORIES'), 'message');
 
-
-			
-// 		if (!class_exists('VirtueMartCart')) 
-// 			require JPATH_ROOT.'/components/com_virtuemart/helpers/cart.php';
-// 		$cart = VirtueMartCart::getCart();
-		
-		
-// 		if(empty($cart->BT)) return;
-
-		
-		
-// 		if (!class_exists('VirtueMartModelState')) 
-// 			require JPATH_ROOT.'/administrator/components/com_virtuemart/models/state.php';
-		
-// 		$db = JFactory::getDBO();
-// 		$sql = 'SELECT category_parent_id, category_child_id FROM #__vm_user_info WHERE user_info_id="'.$ship_to_info_id.'"'
-// 					: 'SELECT state,country FROM #__vm_user_info WHERE user_id='.$user->id.' AND address_type="BT"';
-// 		$db->setQuery($sql);
-// 		$tmp = $db->loadObject();
-// 		if(empty($tmp)) return;
-		
 	}
 
-// 	function onAfterRouteVM2(){
-// 		$option = JRequest::getCmd('option');
-// 		if($option != 'com_virtuemart') return;
-// 
-// 		if (!class_exists('VmConfig')) require JPATH_ROOT.'/administrator/components/com_virtuemart/helpers/config.php';
-// 		if (!class_exists('VmImage')) require JPATH_ROOT.'/administrator/components/com_virtuemart/helpers/image.php'; // needs to be loaded or receive "ensure that the class definition "VmImage" of the object you are trying to operate on was loaded..."
-// 		if (!class_exists('VirtueMartCart')) require JPATH_ROOT.'/components/com_virtuemart/helpers/cart.php';
-// 		$cart = VirtueMartCart::getCart();
-// 		
-// 		
-// 		if(empty($cart->BT)) return;
-// 
-// 		
-// 		
-// 		if (!class_exists('VirtueMartModelCountry')) require JPATH_ROOT.'/administrator/components/com_virtuemart/models/country.php';
-// 		if (!class_exists('VirtueMartModelState')) require JPATH_ROOT.'/administrator/components/com_virtuemart/models/state.php';
-// 		
-// 		$address = empty($cart->ST) ? $cart->BT : $cart->ST;
-// 		
-// 		$c_class = new VirtueMartModelCountry();
-// 		$c_class->_id = $address['virtuemart_country_id'];
-// 		$c_obj = $c_class->getData();
-// 		$u_country = $c_obj->country_3_code;
-// 		
-// 		if(empty($u_country)) return;
-// 
-// 		$s_class = new VirtueMartModelState();
-// 		$s_class->_id = $address['virtuemart_state_id'];
-// 		$s_obj = $s_class->getData();
-// 		$u_state = $s_obj->state_2_code;
-// 		
-// 		
-// 
-// 		$rules = array();
-// 		for($i=0; $i<20; $i++) {
-// 
-// 			$products = $this->_toarray('product'.($i+1));
-// 			$countries = $this->_toarray('country'.($i+1));
-// 			$states = $this->_toarray('state'.($i+1));
-// 			
-// 			if(empty($products) || empty($countries)) continue;
-// 			if(!empty($states) && count($countries)>1) continue;
-// 			
-// 			foreach($products as $product) {
-// 				foreach($countries as $country) {
-// 					$product = strtolower($product);
-// 					if(!empty($rules[$product][$country])) $rules[$product][$country] = array_merge($rules[$product][$country],$states);
-// 					else $rules[$product][$country] = $states;
-// 				}
-// 			}
-// 		}
-// 		if(empty($rules)) return;
-// 		
-// 		$items_to_delete = array();
-// 		foreach($cart->products as $product_cart_id=>$item) {
-// 			//if(!isset($item->product_sku)) continue;
-// 			
-// 			$product_key = strtolower($item->product_sku);
-// 			if(!isset($rules[$product_key][$u_country])) continue;
-// 
-// 			if(empty($rules[$product_key][$u_country]) || in_array($u_state,$rules[$product_key][$u_country])) $items_to_delete[] = $product_cart_id;
-// 		}
-// 		if(!empty($items_to_delete)) {
-// 			foreach($items_to_delete as $product_id) $cart->removeProductCart($product_id);
-// 			JFactory::getLanguage()->load('plg_system_vmProductLocExclude',JPATH_ADMINISTRATOR);
-// 			JFactory::getApplication()->enqueueMessage(JText::_('VMPRODUCTLOCEXCLUDE_WARNING'), 'error');
-// 		}
-// 		
-// 	}
-// 	
-// 	
-// 	function _toarray($name) {
-// 		$var = $this->params->get($name,'');
-// 		if(empty($var)) return array();
-// 		$var = explode(',',$var);
-// 		
-// 		$o = array();
-// 		foreach($var as $row) if(!empty($row)) $o[] = trim($row);
-// 		return $o;
-// 	}
-// 	
 }
 
 
