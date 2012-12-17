@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install version="2.0" type="plugin" group="system" method="upgrade">
+	<name>System - VM Product Auto Parent Categories</name>
+	<creationDate>2012-12-16</creationDate>
+	<author>Reinhold Kainhofer</author>
+	<copyright>Copyright (C) 2012 Reinhold Kainhofer.</copyright>
+	<license>http://www.gnu.org/licenses/gpl.html GNU/GPL v3+</license>
+	<authorEmail>reinhold@kainhofer.com/</authorEmail>
+	<authorUrl>http://kainhofer.com</authorUrl>
+	<version>0.0.1</version>
+	<description>VMPRODPARENTCATS_DESCRIPTION</description>
+
+	<files>
+		<filename plugin="vmProductAutoParentCategories">vmProductAutoParentCategories.php</filename>
+		<filename plugin="vmProductAutoParentCategories">index.html</filename>
+	</files> 
+	<languages>
+	   <language tag="en-GB">en-GB.plg_system_vmProductAutoParentCategories.ini</language>
+	   <language tag="de-DE">de-DE.plg_system_vmProductAutoParentCategories.ini</language>
+	</languages>
+
+	<config>
+		<fields name="params">
+		
+			<fieldset name="basic">
+				<field name="run_trigger"     type="list" default="never" label="VMPRODPARENTCATS_RUN" description ="VMPRODPARENTCATS_RUN_DESC" >
+					<option value="never">VMPRODPARENTCATS_RUN_NEVER</option>
+					<option value="backend-login">VMPRODPARENTCATS_RUN_BACKEND_LOGIN</option>
+				</field>
+				<field name="normal_products" type="list" default="nothing" label="VMPRODPARENTCATS_NORMAL_PRODUCTS" description ="VMPRODPARENTCATS_NORMAL_PRODUCTS_DESC" >
+					<option value="nothing">VMPRODPARENTCATS_DO_NOTHING</option>
+					<option value="add_parents">VMPRODPARENTCATS_ADD_PARENTS</option>
+					<option value="add_two_leaves">VMPRODPARENTCATS_ADD_ONE_PARENT</option>
+					<option value="remove_except_leaf">VMPRODPARENTCATS_REMOVE_EXCEPT_LEAF</option>
+				</field>
+				<field name="child_products"  type="list" default="nothing" label="VMPRODPARENTCATS_CHILD_PRODUCTS" description ="VMPRODPARENTCATS_CHILD_PRODUCTS_DESC" >
+					<option value="nothing">VMPRODPARENTCATS_DO_NOTHING</option>
+					<option value="copy_parent">VMPRODPARENTCATS_COPY_CATEGORIES_FROM_PARENT</option>
+					<option value="remove_all">VMPRODPARENTCATS_REMOVE_ALL</option>
+					<option value="add_parents">VMPRODPARENTCATS_ADD_PARENTS</option>
+					<option value="add_two_leaves">VMPRODPARENTCATS_ADD_ONE_PARENT</option>
+					<option value="remove_except_leaf">VMPRODPARENTCATS_REMOVE_EXCEPT_LEAF</option>
+				</field>
+				<field name="debug"  type="list" default="report_changes" label="VMPRODPARENTCATS_DEBUG" description ="VMPRODPARENTCATS_DEBUG_DESC" >
+					<option value="no_output">VMPRODPARENTCATS_DBG_NO_OUTPUT</option>
+					<option value="report_changes">VMPRODPARENTCATS_DBG_REPORT_CHANGES</option>
+					<option value="report_always">VMPRODPARENTCATS_DBG_REPORT_ALWAYS</option>
+					<option value="report_no_change">VMPRODPARENTCATS_DBG_REPORT_NO_CHANGES</option>
+					<option value="debug">VMPRODPARENTCATS_DBG_DEBUG</option>
+					<option value="debug_no_changes">VMPRODPARENTCATS_DBG_DEBUG_NO_CHANGES</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</install>
+
+
+
+
