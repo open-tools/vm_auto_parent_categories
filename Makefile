@@ -1,4 +1,4 @@
-BASE=vmProductAutoParentCategories
+BASE=vmAutoParentCategories
 PLUGINTYPE=system
 VERSION=0.1
 
