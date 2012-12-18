@@ -1,6 +1,7 @@
 <?php
 /**
  * @plugin VMAutoParentCategories
+ * Version 1.0, 2012-12-18
  * @copyright Copyright (C) 2012 Reinhold Kainhofer - All rights reserved.
  * @Website : http://www.kainhofer.com
  * @license - http://www.gnu.org/licenses/gpl.html GNU/GPL 
@@ -88,7 +89,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 	}
 
 	function getCategoriesAllParents($categories, $catparents) {
-		$newcats=[];
+		$newcats=array();
 		foreach ($categories as $c) {
 			$newcats[$c]=1;
 			$c1=$c;
@@ -221,7 +222,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 		}
 		if ($modified>0) {
 			$this->progressMessage(JText::sprintf('VMAUTOCATEGORIES_PROGRESS_ARTICLES_MODIFIED', $modified));
-		} elseif (in_array ($this->_dbg, ['report_always', 'report_no_change', 'debug', 'debug_no_changes'])) {
+		} elseif (in_array ($this->_dbg, array('report_always', 'report_no_change', 'debug', 'debug_no_changes'))) {
 			$this->progressMessage(JText::sprintf('VMAUTOCATEGORIES_PROGRESS_ARTICLES_NO_MODIFICATIONS'));
 		}
 		
@@ -238,7 +239,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 				case 'add_two_leaves': $newcats = $this->getCategoriesOneParent($cats, $catparents); break;
 				case 'remove_except_leaf': $newcats = $this->getCategoriesOnlyLeaf($cats, $catparents); break;
 				case 'copy_parent': $newcats = $this->getProductCategories($topparent->virtuemart_product_id); break;
-				case 'remove_all': $newcats = []; break;
+				case 'remove_all': $newcats = array(); break;
 			}
 			$added=array_diff($newcats,$cats);
 			$removed=array_diff($cats,$newcats);
@@ -258,7 +259,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 		}
 		if ($childrenmodified>0) {
 			$this->progressMessage(JText::sprintf('VMAUTOCATEGORIES_PROGRESS_CHILDREN_MODIFIED', $childrenmodified));
-		} elseif (in_array ($this->_dbg, ['report_always', 'report_no_change', 'debug', 'debug_no_changes'])) {
+		} elseif (in_array ($this->_dbg, array('report_always', 'report_no_change', 'debug', 'debug_no_changes'))) {
 			$this->progressMessage(JText::sprintf('VMAUTOCATEGORIES_PROGRESS_CHILDREN_NO_MODIFICATIONS'));
 		}
 	}

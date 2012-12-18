@@ -7,7 +7,7 @@
 	<license>http://www.gnu.org/licenses/gpl.html GNU/GPL v3+</license>
 	<authorEmail>reinhold@kainhofer.com/</authorEmail>
 	<authorUrl>http://kainhofer.com</authorUrl>
-	<version>0.0.2</version>
+	<version>1.0.0</version>
 	<description>VMAUTOCATEGORIES_DESCRIPTION</description>
 
 	<files>
@@ -15,8 +15,8 @@
 		<filename plugin="vmAutoParentCategories">index.html</filename>
 	</files> 
 	<languages>
-	   <language tag="en-GB">en-GB.plg_system_vmAutoParentCategories.ini</language>
-	   <language tag="de-DE">de-DE.plg_system_vmAutoParentCategories.ini</language>
+	   <language tag="en-GB">en-GB.plg_system_vmAutoParentCategories.sys.ini</language>
+	   <language tag="de-DE">de-DE.plg_system_vmAutoParentCategories.sys.ini</language>
 	</languages>
 
 	<config>
