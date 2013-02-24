@@ -1,6 +1,6 @@
 BASE=vmAutoParentCategories
 PLUGINTYPE=system
-VERSION=1.0
+VERSION=1.1
 
 PLUGINFILES=$(BASE).php $(BASE).xml index.html
 # TRANSDIR=../../../administrator/language/

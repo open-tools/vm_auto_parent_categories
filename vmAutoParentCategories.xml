@@ -7,7 +7,7 @@
 	<license>http://www.gnu.org/licenses/gpl.html GNU/GPL v3+</license>
 	<authorEmail>reinhold@kainhofer.com/</authorEmail>
 	<authorUrl>http://kainhofer.com</authorUrl>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<description>VMAUTOCATEGORIES_DESCRIPTION</description>
 
 	<files>
@@ -26,6 +26,7 @@
 				<field name="run_trigger" type="list" default="never" label="VMAUTOCATEGORIES_RUN" description ="VMAUTOCATEGORIES_RUN_DESC" >
 					<option value="never">VMAUTOCATEGORIES_RUN_NEVER</option>
 <!-- 					<option value="backend-login">VMAUTOCATEGORIES_RUN_BACKEND_LOGIN</option> -->
+<!-- 					<option value="frontend-login">VMAUTOCATEGORIES_RUN_FRONTEND_LOGIN</option> -->
 					<option value="virtuemart_startpage">VMAUTOCATEGORIES_RUN_VM_STARTPAGE</option>
 					<option value="virtuemart_products">VMAUTOCATEGORIES_RUN_VM_PRODUCTPAGE</option>
 				</field>

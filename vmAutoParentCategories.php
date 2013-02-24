@@ -1,8 +1,8 @@
 <?php
 /**
  * @plugin VMAutoParentCategories
- * Version 1.0, 2012-12-18
- * @copyright Copyright (C) 2012 Reinhold Kainhofer - All rights reserved.
+ * Version 1.1, 2013-02-24
+ * @copyright Copyright (C) 2012-2013 Reinhold Kainhofer - All rights reserved.
  * @Website : http://www.kainhofer.com
  * @license - http://www.gnu.org/licenses/gpl.html GNU/GPL 
  **/
@@ -16,6 +16,15 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 	var $_apply = TRUE;
 	var $_report = TRUE;
 	var $_debug = FALSE;
+
+	function onAfterRoute(){
+		/** Alternatively you may use chaining */
+		if(!JFactory::getApplication()->isAdmin()) return;
+		if ($this->checkForRoutingTrigger()) {
+			$this->initSettings();
+			$this->updateCategories();
+		}
+	}
 
 	function initSettings() {
 		$this->_dbg = $this->params->get('debug','report_changes');
@@ -43,7 +52,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 				break;
 		}
 	}
-	function checkForTrigger() {
+	function checkForRoutingTrigger() {
 		$trigger = $this->params->get('run_trigger', 'never');
 		// Explicit call will ALWAYS trigger
 		if (JRequest::getCmd('vmAutoParentCategories') == 'run') {
@@ -66,25 +75,15 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 		}
 		return $run;
 	}
-	function onAfterRoute(){
-		/** Alternatively you may use chaining */
-		if(!JFactory::getApplication()->isAdmin()) return;
-		if ($this->checkForTrigger()) {
-			$this->initSettings();
-			$this->updateCategories();
-		}
-	}
 
 	function debugMessage ($msg) {
 		if ($this->_debug) {
-			$app = JFactory::getApplication();
-			$app->enqueueMessage($msg, 'message');
+			JFactory::getApplication()->enqueueMessage($msg, 'message');
 		}
 	}
 	function progressMessage ($msg) {
 		if ($this->_report) {
-			$app = JFactory::getApplication();
-			$app->enqueueMessage($msg, 'message');
+			JFactory::getApplication()->enqueueMessage($msg, 'message');
 		}
 	}
 
@@ -170,6 +169,16 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 			}
 		}
 	}
+	function getCategoryTree () {
+		$q = 'SELECT `c`.`virtuemart_category_id` , `l`.`category_name` , `cc`.`category_parent_id` 
+		      FROM `#__virtuemart_categories` AS `c` 
+		      LEFT JOIN `#__virtuemart_categories_'.VMLANG.'` AS `l` ON ( `c`.`virtuemart_category_id` = `l`.`virtuemart_category_id` )
+		      LEFT JOIN `#__virtuemart_category_categories` AS `cc` ON ( `c`.`virtuemart_category_id` = `cc`.`category_child_id` )';
+		$db = JFactory::getDbo ();
+		$db->setQuery ($q);
+		$categories = $db->loadObjectList ('virtuemart_category_id');
+		return $categories;
+	}
 
 	
 	function updateCategories() {
@@ -179,10 +188,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 		$prodaction = $this->params->get('normal_products', 'nothing');
 		$childprodaction = $this->params->get('child_products', 'nothing');
 
-		$app = JFactory::getApplication();
-		$catmodel = VmModel::getModel('category');
-		$cattree = $catmodel->getCategoryTree();
-		
+		$cattree = $this->getCategoryTree();
 		// Store the names and parents for each category id
 		foreach ($cattree as $cat) {
 			$catnames[$cat->virtuemart_category_id] = $cat->category_name;
