@@ -1,17 +1,23 @@
 BASE=vmAutoParentCategories
 PLUGINTYPE=system
-VERSION=1.1
+VERSION=1.2
 
 PLUGINFILES=$(BASE).php $(BASE).xml index.html
-# TRANSDIR=../../../administrator/language/
-# TRANSLATIONS=$(call wildcard,$(TRANSDIR)/*/*.plg_$(PLUGINTYPE)_$(BASE).sys.ini)
-TRANSLATIONS=$(call wildcard,*.plg_$(PLUGINTYPE)_$(BASE).*ini)
+
+SYSTRANSLATIONS=$(call wildcard,language/*/*.plg_$(PLUGINTYPE)_$(BASE).*sys.ini)
+NONSYSTRANSLATIONS=${SYSTRANSLATIONS:%.sys.ini=%.ini}
+TRANSLATIONS=$(SYSTRANSLATIONS) $(NONSYSTRANSLATIONS) $(call wildcard,language/*/index.html) language/index.html
 ZIPFILE=plg_$(PLUGINTYPE)_$(BASE)_v$(VERSION).zip
 
-zip: $(PLUGINFILES) $(TRANSLATIONS)
+all: zip
+
+$(NONSYSTRANSLATIONS): %.ini: %.sys.ini
+	cp $< $@
+
+zip: $(PLUGINFILES) $(TRANSLATIONS) $(SYSTRANSLATIONS) $(NONSYSTRANSLATIONS)
 	@echo "Packing all files into distribution file $(ZIPFILE):"
 	@zip -r $(ZIPFILE) $(PLUGINFILES) 
-	@zip -r --junk-paths $(ZIPFILE) $(TRANSLATIONS)
+	@zip -r $(ZIPFILE) $(TRANSLATIONS)
 
 clean:
 	rm -f $(ZIPFILE)

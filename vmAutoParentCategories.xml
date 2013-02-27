@@ -12,21 +12,22 @@
 
 	<files>
 		<filename plugin="vmAutoParentCategories">vmAutoParentCategories.php</filename>
-		<filename plugin="vmAutoParentCategories">index.html</filename>
+		<filename>index.html</filename>
+		<folder>language</folder>
 	</files> 
-	<languages>
-	   <language tag="en-GB">en-GB.plg_system_vmAutoParentCategories.sys.ini</language>
-	   <language tag="de-DE">de-DE.plg_system_vmAutoParentCategories.sys.ini</language>
+	<languages folder="language">
+	   <language tag="en-GB">en-GB/en-GB.plg_system_vmAutoParentCategories.ini</language>
+	   <language tag="en-GB">en-GB/en-GB.plg_system_vmAutoParentCategories.sys.ini</language>
+	   <language tag="de-DE">de-DE/de-DE.plg_system_vmAutoParentCategories.ini</language>
+	   <language tag="de-DE">de-DE/de-DE.plg_system_vmAutoParentCategories.sys.ini</language>
 	</languages>
-
+<!-- 	Joomla 2.5 -->
 	<config>
 		<fields name="params">
 		
 			<fieldset name="basic">
 				<field name="run_trigger" type="list" default="never" label="VMAUTOCATEGORIES_RUN" description ="VMAUTOCATEGORIES_RUN_DESC" >
 					<option value="never">VMAUTOCATEGORIES_RUN_NEVER</option>
-<!-- 					<option value="backend-login">VMAUTOCATEGORIES_RUN_BACKEND_LOGIN</option> -->
-<!-- 					<option value="frontend-login">VMAUTOCATEGORIES_RUN_FRONTEND_LOGIN</option> -->
 					<option value="virtuemart_startpage">VMAUTOCATEGORIES_RUN_VM_STARTPAGE</option>
 					<option value="virtuemart_products">VMAUTOCATEGORIES_RUN_VM_PRODUCTPAGE</option>
 				</field>
@@ -55,6 +56,38 @@
 			</fieldset>
 		</fields>
 	</config>
+	
+<!-- 	Joomla 1.5 -->
+	<params>
+		<param name="run_trigger" type="list" default="never" label="VMAUTOCATEGORIES_RUN" description ="VMAUTOCATEGORIES_RUN_DESC" >
+			<option value="never">VMAUTOCATEGORIES_RUN_NEVER</option>
+			<option value="virtuemart_startpage">VMAUTOCATEGORIES_RUN_VM_STARTPAGE</option>
+			<option value="virtuemart_products">VMAUTOCATEGORIES_RUN_VM_PRODUCTPAGE</option>
+		</param>
+		<param name="normal_products" type="list" default="nothing" label="VMAUTOCATEGORIES_NORMAL_PRODUCTS" description ="VMAUTOCATEGORIES_NORMAL_PRODUCTS_DESC" >
+			<option value="nothing">VMAUTOCATEGORIES_DO_NOTHING</option>
+			<option value="add_parents">VMAUTOCATEGORIES_ADD_PARENTS</option>
+			<option value="add_two_leaves">VMAUTOCATEGORIES_ADD_ONE_PARENT</option>
+			<option value="remove_except_leaf">VMAUTOCATEGORIES_REMOVE_EXCEPT_LEAF</option>
+		</param>
+		<param name="child_products"  type="list" default="nothing" label="VMAUTOCATEGORIES_CHILD_PRODUCTS" description ="VMAUTOCATEGORIES_CHILD_PRODUCTS_DESC" >
+			<option value="nothing">VMAUTOCATEGORIES_DO_NOTHING</option>
+			<option value="copy_parent">VMAUTOCATEGORIES_COPY_CATEGORIES_FROM_PARENT</option>
+			<option value="remove_all">VMAUTOCATEGORIES_REMOVE_ALL</option>
+			<option value="add_parents">VMAUTOCATEGORIES_ADD_PARENTS</option>
+			<option value="add_two_leaves">VMAUTOCATEGORIES_ADD_ONE_PARENT</option>
+			<option value="remove_except_leaf">VMAUTOCATEGORIES_REMOVE_EXCEPT_LEAF</option>
+		</param>
+		<param name="debug"  type="list" default="report_changes" label="VMAUTOCATEGORIES_DEBUG" description ="VMAUTOCATEGORIES_DEBUG_DESC" >
+			<option value="no_output">VMAUTOCATEGORIES_DBG_NO_OUTPUT</option>
+			<option value="report_changes">VMAUTOCATEGORIES_DBG_REPORT_CHANGES</option>
+			<option value="report_always">VMAUTOCATEGORIES_DBG_REPORT_ALWAYS</option>
+			<option value="report_no_change">VMAUTOCATEGORIES_DBG_REPORT_NO_CHANGES</option>
+			<option value="debug">VMAUTOCATEGORIES_DBG_DEBUG</option>
+			<option value="debug_no_changes">VMAUTOCATEGORIES_DBG_DEBUG_NO_CHANGES</option>
+		</param>
+	</params>
+
 </install>
 
 
