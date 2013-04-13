@@ -1,6 +1,6 @@
 BASE=vmAutoParentCategories
 PLUGINTYPE=system
-VERSION=1.2
+VERSION=1.2.1
 
 PLUGINFILES=$(BASE).php $(BASE).xml index.html
 
