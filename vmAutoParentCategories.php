@@ -54,16 +54,17 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 	}
 	function checkForRoutingTrigger() {
 		$trigger = $this->params->get('run_trigger', 'never');
+		$jinput   = JFactory::getApplication()->input;
 		// Explicit call will ALWAYS trigger
-		if (JRequest::getCmd('vmAutoParentCategories') == 'run') {
+		if ($jinput->getCmd('vmAutoParentCategories') == 'run') {
 			return TRUE;
 		}
 		if ($trigger == 'never') 
 			return FALSE;
 
-		$option = JRequest::getCmd('option');
-		$view = JRequest::getCmd('view');
-		$task = JRequest::getCmd('task');
+		$option = $jinput->getCmd('option');
+		$view = $jinput->getCmd('view');
+		$task = $jinput->getCmd('task');
 		$run = FALSE;
 		if ($option == 'com_virtuemart') {
 			if ($trigger == 'virtuemart_startpage') {
@@ -196,6 +197,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 		}
 		$this->debugMessage(JText::sprintf('VMAUTOCATEGORIES_DEBUG_LOADCATS', count($cattree)));
 
+		// TODO: Instead of reading in all products at once, read in only one after the other
 		$products=$this->getAllProducts();
 		$this->debugMessage(JText::sprintf('VMAUTOCATEGORIES_DEBUG_LOADPRODUCTS', count($products)));
 		// First, look only at parent products
