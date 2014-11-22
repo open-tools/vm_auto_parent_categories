@@ -166,7 +166,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 			$db->query ();
 			$err = $db->getErrorMsg ();
 			if (!empty($err)) {
-				vmError ('Database error: Unable to remove product category $c for product $virtuemart_product_id: ' . $err);
+				vmError ("Database error: Unable to remove product category $c for product $virtuemart_product_id: " . $err);
 			}
 		}
 	}
