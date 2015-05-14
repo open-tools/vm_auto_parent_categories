@@ -8,6 +8,7 @@
  **/
 
 defined( '_JEXEC' ) or die( 'Restricted access' );
+defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 JFactory::getLanguage()->load('plg_system_vmAutoParentCategories.sys');
 
 jimport('joomla.event.plugin');

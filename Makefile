@@ -16,7 +16,7 @@ $(NONSYSTRANSLATIONS): %.ini: %.sys.ini
 
 zip: $(PLUGINFILES) $(TRANSLATIONS) $(SYSTRANSLATIONS) $(NONSYSTRANSLATIONS)
 	@echo "Packing all files into distribution file $(ZIPFILE):"
-	@zip -r $(ZIPFILE) $(PLUGINFILES) 
+	@zip -r $(ZIPFILE) $(PLUGINFILES)  LICENSE.txt
 	@zip -r $(ZIPFILE) $(TRANSLATIONS)
 
 clean:
