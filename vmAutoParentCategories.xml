@@ -58,7 +58,7 @@
 	</config>
 	
 	<updateservers>
-		<server type="extension" name="VM Auto Parent Categories Updates"><![CDATA[http://open-tools.net/UpdateServer/index.php?package=Joomla&amp;extension=AutoParentCategories]]></server>
+		<server type="extension" name="VM Auto Parent Categories Updates"><![CDATA[http://open-tools.net/UpdateServer/index.php?package=Joomla&amp;extension=AutoParentCategories&amp;file=extension.xml]]></server>
 	</updateservers>
 
 </extension>
