@@ -137,7 +137,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 			$q = 'SELECT `virtuemart_category_id` FROM `#__virtuemart_product_categories` WHERE `virtuemart_product_id` = ' . (int)$virtuemart_product_id;
 			$db = JFactory::getDBO ();
 			$db->setQuery ($q);
-			$categories = $db->loadResultArray ();
+			$categories = $db->loadColumn ();
 		}
 		return $categories;
 	}
