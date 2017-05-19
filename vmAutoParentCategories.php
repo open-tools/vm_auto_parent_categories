@@ -185,7 +185,7 @@ class plgSystemVMAutoParentCategories extends JPlugin {
 	
 	function updateCategories() {
 		if (!class_exists( 'VmConfig' )) 
-			require(JPATH_ADMINISTRATOR.DS.'components'.DS.'com_virtuemart'.DS.'helpers'.DS.'config.php');
+			require(JPATH_ADMINISTRATOR.'/components/com_virtuemart/helpers/config.php');
 		$config = VmConfig::loadConfig();
 		$prodaction = $this->params->get('normal_products', 'nothing');
 		$childprodaction = $this->params->get('child_products', 'nothing');
